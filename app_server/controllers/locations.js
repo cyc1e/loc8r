@@ -1,6 +1,6 @@
 /* Получить (GET) домашнюю страницу */
 module.exports.homelist = function(req, res){
- res.render('index', { title: 'Home' });
+ res.render('locations-list', { title: 'Home' });
 };
 /* Получить (GET) страницу с информацией о местоположениях */
 module.exports.locationInfo = function(req, res){
