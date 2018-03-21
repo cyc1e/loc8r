@@ -23,3 +23,9 @@ a {
 .reviewTimestamp {
 	color: #ccc;
 }
+#filter {
+	margin-bottom: 3px;
+	border-style: none;
+	background-color: #DADBE0;
+	outline: none;
+}
