@@ -26,6 +26,7 @@ var _formatDistance = function (distance) {
   }
 };
 
+
 var _showError = function (req, res, status) {
   var title, content;
   if (status === 404) {
@@ -45,7 +46,7 @@ var _showError = function (req, res, status) {
   });
 };
 
-var renderHomepage = function(req, res){
+var renderHomepage = function(req, res, responseBody){
   res.render('locations-list', {
     title: 'Loc8r - find a place to work with wifi',
     pageHeader: {
@@ -53,12 +54,13 @@ var renderHomepage = function(req, res){
       strapline: 'Find places to work with wifi near you!'
     },
     sidebar: "Looking for wifi and a seat? Loc8r helps you find places to work when out and about. Perhaps with coffee, cake or a pint? Let Loc8r help you find the place you're looking for."
-  });
+   });
 };
+
 
 /* GET 'home' page */
 module.exports.homelist = function(req, res){
- renderHomepage(req, res);
+  renderHomepage(req, res);
 };
 
 var getLocationInfo = function (req, res, callback) {
@@ -86,6 +88,7 @@ var getLocationInfo = function (req, res, callback) {
   );
 };
 
+
 var renderDetailPage = function (req, res, locDetail) {
   res.render('location-info', {
     title: locDetail.name,
@@ -109,7 +112,8 @@ var renderReviewForm = function (req, res, locDetail) {
   res.render('location-review-form', {
     title: 'Review ' + locDetail.name + ' on Loc8r',
     pageHeader: { title: 'Review ' + locDetail.name },
-    error: req.query.err
+    error: req.query.err,
+    url: req.originalUrl
   });
 };
 

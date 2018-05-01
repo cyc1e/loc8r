@@ -1,76 +1,95 @@
 var mongoose = require('mongoose');
 var Loc = mongoose.model('Location');
-var theEarth = (function() {
-  var earthRadius = 6371; // km, miles is 3959
-
-  var getDistanceFromRads = function(rads) {
-    return parseFloat(rads * earthRadius);
-  };
-
-  var getRadsFromDistance = function(distance) {
-    return parseFloat(distance / earthRadius);
-  };
-
-  return {
-    getDistanceFromRads: getDistanceFromRads,
-    getRadsFromDistance: getRadsFromDistance
-  };
-})();
 
 var sendJSONresponse = function(res, status, content) {
   res.status(status);
   res.json(content);
 };
 
+// var theEarth = (function() {
+//   var earthRadius = 6371; // km, miles is 3959
+
+//   var getDistanceFromRads = function(rads) {
+//     return parseFloat(rads * earthRadius);
+//   };
+
+//   var getRadsFromDistance = function(distance) {
+//     return parseFloat(distance / earthRadius);
+//   };
+
+//   return {
+//     getDistanceFromRads: getDistanceFromRads,
+//     getRadsFromDistance: getRadsFromDistance
+//   };
+// })();
+
+
+
 
 
 /* GET list of locations */
 module.exports.locationsListByDistance = function(req, res) {
-  var lng = parseFloat(req.query.lng);
-  var lat = parseFloat(req.query.lat);
-  var maxDistance = parseFloat(req.query.maxDistance);
-  var point = {
-    type: "Point",
-    coordinates: [lng, lat]
-  };
-  var geoOptions = {
-    spherical: true,
-    maxDistance: theEarth.getRadsFromDistance(maxDistance),
-    num: 10
-  };
-  if ((!lng && lng!==0) || (!lat && lat!==0) || ! maxDistance) {
-    console.log('locationsListByDistance missing params');
-    sendJSONresponse(res, 404, {
-      "message": "lng, lat and maxDistance query parameters are all required"
-    });
-    return;
-  }
-  Loc.geoNear(point, geoOptions, function(err, results, stats) {
-    var locations;
-    console.log('Geo Results', results);
-    console.log('Geo stats', stats);
-    if (err) {
-      console.log('geoNear error:', err);
-      sendJSONresponse(res, 404, err);
-    } else {
-      locations = buildLocationList(req, res, results, stats);
-      sendJSONresponse(res, 200, locations);
+  // var lng = parseFloat(req.query.lng);
+  // var lat = parseFloat(req.query.lat);
+  // var maxDistance = parseFloat(req.query.maxDistance);
+  // var point = {
+  //   type: "Point",
+  //   coordinates: [lng, lat]
+  // };
+  // var geoOptions = {
+  //   spherical: true,
+  //   maxDistance: theEarth.getDistanceFromRads(maxDistance),
+  //   num: 10
+  // };
+  // if ((!lng && lng!==0) || (!lat && lat!==0) || ! maxDistance) {
+  //   console.log('locationsListByDistance missing params');
+  //   sendJSONresponse(res, 404, {
+  //     "message": "lng, lat and maxDistance query parameters are all required"
+  //   });
+  //   return;
+  // } else {
+    console.log('locationsListByDistance running...');
+    Loc.aggregate(
+      [{
+        $geoNear:
+      {
+        near:
+      {
+        type:'Point',
+        coordinates: [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+    },
+      spherical:true,
+      distanceField:'dist',
+      maxDistance: parseFloat(req.query.maxDistance)
     }
-  });
-};
+  }],
+      function(err, results) {
+        if (err) {
+          sendJSONresponse(res, 404, err);
+        } else {
+          console.log(results);
+          locations = buildLocationList(req, res, results);
+          sendJSONresponse(res, 200, locations);
+          console.log(results);
+        }
+      }
+    )
+  };
 
 var buildLocationList = function(req, res, results, stats) {
+  console.log('norm');
   var locations = [];
   results.forEach(function(doc) {
     locations.push({
-      distance: theEarth.getDistanceFromRads(doc.dis),
-      name: doc.obj.name,
-      address: doc.obj.address,
-      rating: doc.obj.rating,
-      facilities: doc.obj.facilities,
-      _id: doc.obj._id
+      distance: doc.dist,
+      name: doc.name,
+      address: doc.address,
+      rating: doc.rating,
+      facilities: doc.facilities,
+      _id: doc._id
     });
   });
+  console.log(results);
   return locations;
 };
 
