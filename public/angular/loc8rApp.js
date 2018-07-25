@@ -78,7 +78,7 @@ var locationListCtrl = function ($scope, loc8rData, geolocation) {
 
 var loc8rData = function ($http) {
   var locationByCoords = function (lat, lng) {
-    return $http.get('/api/locations?lng=' + lng + '&lat=' + lat + '&maxDistance=5000');
+    return $http.get('/api/locations?lng=' + lng + '&lat=' + lat + '&maxDistance=10000');
   };
   return {
     locationByCoords : locationByCoords
