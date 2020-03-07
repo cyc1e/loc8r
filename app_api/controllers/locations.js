@@ -6,48 +6,8 @@ var sendJSONresponse = function(res, status, content) {
   res.json(content);
 };
 
-// var theEarth = (function() {
-//   var earthRadius = 6371; // km, miles is 3959
-
-//   var getDistanceFromRads = function(rads) {
-//     return parseFloat(rads * earthRadius);
-//   };
-
-//   var getRadsFromDistance = function(distance) {
-//     return parseFloat(distance / earthRadius);
-//   };
-
-//   return {
-//     getDistanceFromRads: getDistanceFromRads,
-//     getRadsFromDistance: getRadsFromDistance
-//   };
-// })();
-
-
-
-
-
 /* GET list of locations */
 module.exports.locationsListByDistance = function(req, res) {
-  // var lng = parseFloat(req.query.lng);
-  // var lat = parseFloat(req.query.lat);
-  // var maxDistance = parseFloat(req.query.maxDistance);
-  // var point = {
-  //   type: "Point",
-  //   coordinates: [lng, lat]
-  // };
-  // var geoOptions = {
-  //   spherical: true,
-  //   maxDistance: theEarth.getDistanceFromRads(maxDistance),
-  //   num: 10
-  // };
-  // if ((!lng && lng!==0) || (!lat && lat!==0) || ! maxDistance) {
-  //   console.log('locationsListByDistance missing params');
-  //   sendJSONresponse(res, 404, {
-  //     "message": "lng, lat and maxDistance query parameters are all required"
-  //   });
-  //   return;
-  // } else {
     console.log('locationsListByDistance running...');
     Loc.aggregate(
       [{
@@ -67,17 +27,14 @@ module.exports.locationsListByDistance = function(req, res) {
         if (err) {
           sendJSONresponse(res, 404, err);
         } else {
-          console.log(results);
           locations = buildLocationList(req, res, results);
           sendJSONresponse(res, 200, locations);
-          console.log(results);
         }
       }
     )
   };
 
 var buildLocationList = function(req, res, results, stats) {
-  console.log('norm');
   var locations = [];
   results.forEach(function(doc) {
     locations.push({
@@ -89,13 +46,11 @@ var buildLocationList = function(req, res, results, stats) {
       _id: doc._id
     });
   });
-  console.log(results);
   return locations;
 };
 
 /* GET a location by the id */
 module.exports.locationsReadOne = function(req, res) {
-  console.log('Finding location details', req.params);
   if (req.params && req.params.locationid) {
     Loc
       .findById(req.params.locationid)
@@ -106,15 +61,12 @@ module.exports.locationsReadOne = function(req, res) {
           });
           return;
         } else if (err) {
-          console.log(err);
           sendJSONresponse(res, 404, err);
           return;
         }
-        console.log(location);
         sendJSONresponse(res, 200, location);
       });
   } else {
-    console.log('No locationid specified');
     sendJSONresponse(res, 404, {
       "message": "No locationid in request"
     });
@@ -124,7 +76,6 @@ module.exports.locationsReadOne = function(req, res) {
 /* POST a new location */
 /* /api/locations */
 module.exports.locationsCreate = function(req, res) {
-  console.log(req.body);
   Loc.create({
     name: req.body.name,
     address: req.body.address,
@@ -143,10 +94,8 @@ module.exports.locationsCreate = function(req, res) {
     }]
   }, function(err, location) {
     if (err) {
-      console.log(err);
       sendJSONresponse(res, 400, err);
     } else {
-      console.log(location);
       sendJSONresponse(res, 201, location);
     }
   });
@@ -209,11 +158,9 @@ module.exports.locationsDeleteOne = function(req, res) {
       .exec(
         function(err, location) {
           if (err) {
-            console.log(err);
             sendJSONresponse(res, 404, err);
             return;
           }
-          console.log("Location id " + locationid + " deleted");
           sendJSONresponse(res, 204, null);
         }
     );
