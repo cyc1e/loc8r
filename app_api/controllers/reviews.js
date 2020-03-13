@@ -53,6 +53,7 @@ var doAddReview = function(req, res, location) {
 };
 
 var updateAverageRating = function(locationid) {
+  console.log("Update rating average for", locationid);
   Loc
     .findById(locationid)
     .select('reviews')
@@ -142,6 +143,7 @@ module.exports.reviewsReadOne = function(req, res) {
       .select('name reviews')
       .exec(
         function(err, location) {
+          console.log(location);
           var response, review;
           if (!location) {
             sendJSONresponse(res, 404, {

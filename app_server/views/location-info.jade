@@ -5,13 +5,13 @@ include _includes/sharedHTMLfunctions
 block content
   .row.page-header: .col-lg-12
       h1= pageHeader.title
+      p.rating
+        +outputRating(location.rating)
+      p= location.address
   .row
     .col-xs-12.col-md-9
       .row
         .col-xs-12.col-sm-6
-          p.rating
-            +outputRating(location.rating)
-          p= location.address
           .panel.panel-primary
             .panel-heading
               h2.panel-title Opening hours
@@ -35,9 +35,17 @@ block content
         .col-xs-12.col-sm-6.location-map
           .panel.panel-primary
             .panel-heading
-              h2.panel-title Location map
+              button.btn.btn-default.pull-right(ng-click="isRoute = true") Build a route
+              h2.panel-title Location map #{isRoute}
             .panel-body
-              img.img-responsive.img-rounded(src="http://maps.googleapis.com/maps/api/staticmap?center=#{location.coords.lat},#{location.coords.lng}&zoom=17&size=400x350&sensor=false&markers=#{location.coords.lat},#{location.coords.lng}&scale=2")
+              img.img-responsive.img-rounded(src="http://maps.googleapis.com/maps/api/staticmap?center=#{location.coords.lat},#{location.coords.lng}&zoom=17&size=400x350&sensor=false&markers=#{location.coords.lat},#{location.coords.lng}&scale=2&key=AIzaSyCLkCa-3fm6GoGN2SEyyKOjL5NvURpqy1g")
+      .row(ng-if="isRoute")
+        .col-xs-12.location-map
+          .panel.panel-primary
+            .panel-heading
+              h2.panel-title Route to location
+            .panel-body
+              leaflet-directive(id="map", data-point=location)
       .row
         .col-xs-12
           .panel.panel-primary.review-panel
@@ -59,3 +67,5 @@ block content
     .col-xs-12.col-md-3
       p.lead #{location.name} #{sidebar.context}
       p= sidebar.callToAction
+  script(src='/javascripts/jquery-1.11.1.min.js')
+  script(src='/javascripts/loc.js')
