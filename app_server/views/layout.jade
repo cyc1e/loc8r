@@ -5,6 +5,8 @@ html(ng-app='loc8rApp')
     title= title
     script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.32/angular.min.js')
     script(src='/angular/loc8rApp.js')
+    link(rel='stylesheet', href='https://unpkg.com/leaflet@1.2.0/dist/leaflet.css')
+    link(rel='stylesheet' href='https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css')
     link(rel='stylesheet', href='/bootstrap/css/amelia.bootstrap.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
@@ -28,9 +30,10 @@ html(ng-app='loc8rApp')
         .row
           .col-xs-12
             small &copy; Peter R 2018
-
     script(src='/javascripts/jquery-1.11.1.min.js')
     script(src='/bootstrap/js/bootstrap.min.js')
+    script(src='https://unpkg.com/leaflet@1.2.0/dist/leaflet.js')
+    script(src='https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js')
     script(src='/javascripts/validation.js')
     
     

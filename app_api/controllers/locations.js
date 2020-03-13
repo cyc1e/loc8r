@@ -8,7 +8,6 @@ var sendJSONresponse = function(res, status, content) {
 
 /* GET list of locations */
 module.exports.locationsListByDistance = function(req, res) {
-    console.log('locationsListByDistance running...');
     Loc.aggregate(
       [{
         $geoNear:
@@ -27,14 +26,16 @@ module.exports.locationsListByDistance = function(req, res) {
         if (err) {
           sendJSONresponse(res, 404, err);
         } else {
+          // console.log(results);
           locations = buildLocationList(req, res, results);
           sendJSONresponse(res, 200, locations);
+          // console.log(results);
         }
       }
     )
   };
 
-var buildLocationList = function(req, res, results, stats) {
+var buildLocationList = function(req, res, results) {
   var locations = [];
   results.forEach(function(doc) {
     locations.push({
@@ -51,7 +52,9 @@ var buildLocationList = function(req, res, results, stats) {
 
 /* GET a location by the id */
 module.exports.locationsReadOne = function(req, res) {
+  console.log('Finding location details', req.params);
   if (req.params && req.params.locationid) {
+    console.log('req.params', req.params);
     Loc
       .findById(req.params.locationid)
       .exec(function(err, location) {
@@ -61,12 +64,15 @@ module.exports.locationsReadOne = function(req, res) {
           });
           return;
         } else if (err) {
+          console.log(err);
           sendJSONresponse(res, 404, err);
           return;
         }
+        console.log('location', location)
         sendJSONresponse(res, 200, location);
       });
   } else {
+    console.log('No locationid specified');
     sendJSONresponse(res, 404, {
       "message": "No locationid in request"
     });
@@ -76,6 +82,7 @@ module.exports.locationsReadOne = function(req, res) {
 /* POST a new location */
 /* /api/locations */
 module.exports.locationsCreate = function(req, res) {
+  console.log(req.body);
   Loc.create({
     name: req.body.name,
     address: req.body.address,
@@ -94,8 +101,10 @@ module.exports.locationsCreate = function(req, res) {
     }]
   }, function(err, location) {
     if (err) {
+      console.log(err);
       sendJSONresponse(res, 400, err);
     } else {
+      console.log(location);
       sendJSONresponse(res, 201, location);
     }
   });
@@ -158,9 +167,11 @@ module.exports.locationsDeleteOne = function(req, res) {
       .exec(
         function(err, location) {
           if (err) {
+            console.log(err);
             sendJSONresponse(res, 404, err);
             return;
           }
+          console.log("Location id " + locationid + " deleted");
           sendJSONresponse(res, 204, null);
         }
     );

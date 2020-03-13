@@ -27,7 +27,9 @@ var ratingStars = function () {
 		scope: {
 			thisRating : '=rating'
 		},
-		templateUrl : '/angular/rating-stars.html'
+    templateUrl : '/angular/rating-stars.html',
+    link: function(scope, element, attr) {
+    }
 	};
 };
 var geolocation = function () {
@@ -44,14 +46,59 @@ var geolocation = function () {
   };
 };
 
+var leafletDirective = function (geolocation) {
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: {
+      point: '=point',
+    },
+    template: '<div></div>',
+    link: function(scope, element, attrs) {
+        console.log(scope.point)
+        var updatePositions = function(position) {
+          var map = L.map(attrs.id).setView([55.815448, 37.352914], 4)
+          var router = new L.Routing.osrmv1({ serviceUrl: 'https://infinite-forest-32756.herokuapp.com/' })
+          L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            attribution: '© OpenStreetMap contributors',
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+          }).addTo(map)
+            var lat = position.coords.latitude,
+                lng = position.coords.longitude;
+            console.log(lat, lng)
+            L.Routing.control({
+              waypoints: [
+                L.latLng(lat, lng),
+                L.latLng(scope.point.coords.lat, scope.point.coords.lng)
+              ]
+            },
+            {router: router}).addTo(map);
+          }
+          var showError = function(error) {
+            console.log('ERROR', error)
+          }
+          var noGeo = function () {
+            console.log('Geolocation is not supported by this browser.')
+          };
+          scope.$watch(attrs.point, function(value) {
+            console.log('value', value)
+            geolocation.getPosition(updatePositions, showError, noGeo);
+          });
+      }
+  }
+};
+
+
+
 var locationListCtrl = function ($scope, loc8rData, geolocation) {
   $scope.message = "Checking your location";
-
   $scope.getData = function (position) {
-    var lat = position.coords.latitude,
-        lng = position.coords.longitude;
+    $scope.lat = position.coords.latitude,
+    $scope.lng = position.coords.longitude;
+    console.log($scope.lat, $scope.lng)
     $scope.message = "Searching for nearby places";
-    loc8rData.locationByCoords(lat, lng)
+    $scope.isRoute = false;
+    loc8rData.locationByCoords($scope.lat, $scope.lng)
       .success(function(data) {
         $scope.message = data.length > 0 ? "" : "No locations found nearby";
         $scope.data = { locations: data };
@@ -78,7 +125,7 @@ var locationListCtrl = function ($scope, loc8rData, geolocation) {
 
 var loc8rData = function ($http) {
   var locationByCoords = function (lat, lng) {
-    return $http.get('/api/locations?lng=' + lng + '&lat=' + lat + '&maxDistance=10000');
+    return $http.get('/api/locations?lng=' + lng + '&lat=' + lat + '&maxDistance=50000');
   };
   return {
     locationByCoords : locationByCoords
@@ -91,5 +138,6 @@ angular
  .controller('locationListCtrl', locationListCtrl)
  .filter('formatDistance', formatDistance)
  .directive('ratingStars', ratingStars)
+ .directive('leafletDirective', leafletDirective)
  .service('loc8rData', loc8rData)
  .service('geolocation', geolocation);
