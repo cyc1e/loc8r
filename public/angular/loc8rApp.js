@@ -55,24 +55,23 @@ var leafletDirective = function (geolocation) {
     },
     template: '<div></div>',
     link: function(scope, element, attrs) {
-        console.log(scope.point)
         var updatePositions = function(position) {
           var map = L.map(attrs.id).setView([55.815448, 37.352914], 4)
-          var router = new L.Routing.osrmv1({ serviceUrl: 'https://infinite-forest-32756.herokuapp.com/' })
           L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
             attribution: '© OpenStreetMap contributors',
             subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
           }).addTo(map)
             var lat = position.coords.latitude,
                 lng = position.coords.longitude;
-            console.log(lat, lng)
             L.Routing.control({
               waypoints: [
                 L.latLng(lat, lng),
                 L.latLng(scope.point.coords.lat, scope.point.coords.lng)
-              ]
-            },
-            {router: router}).addTo(map);
+              ],
+              router: new L.Routing.OSRMv1({
+                serviceUrl: 'http://router.project-osrm.org/route/v1'
+            })
+            }).addTo(map);
           }
           var showError = function(error) {
             console.log('ERROR', error)
@@ -81,7 +80,6 @@ var leafletDirective = function (geolocation) {
             console.log('Geolocation is not supported by this browser.')
           };
           scope.$watch(attrs.point, function(value) {
-            console.log('value', value)
             geolocation.getPosition(updatePositions, showError, noGeo);
           });
       }
@@ -95,7 +93,6 @@ var locationListCtrl = function ($scope, loc8rData, geolocation) {
   $scope.getData = function (position) {
     $scope.lat = position.coords.latitude,
     $scope.lng = position.coords.longitude;
-    console.log($scope.lat, $scope.lng)
     $scope.message = "Searching for nearby places";
     $scope.isRoute = false;
     loc8rData.locationByCoords($scope.lat, $scope.lng)
