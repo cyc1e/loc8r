@@ -1,6 +1,6 @@
 {
   "name": "loc8r",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "scripts": {
     "go": "cross-env NODE_ENV=production MONGOLAB_URI=mongodb://cyc1e:28*10*06*lfif76@ds235388.mlab.com:35388/loc8r nodemon",
